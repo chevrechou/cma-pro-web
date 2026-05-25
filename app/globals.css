@@ -1,1 +1,93 @@
 @layer mantine;
+
+/* ── Hero background ────────────────────────────────────────── */
+@keyframes gradientFlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.hero-bg {
+  background: linear-gradient(
+    -45deg,
+    #0d2535,
+    #123451,
+    #1b4f72,
+    #24578a,
+    #2e6aa3,
+    #1b4f72,
+    #123451
+  );
+  background-size: 400% 400%;
+  animation: gradientFlow 18s ease infinite;
+}
+
+/* ── Entrance animations ─────────────────────────────────────── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.78) translateY(-10px); }
+  65%  { transform: scale(1.04) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.fade-up {
+  opacity: 0;
+  animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.pop-in {
+  opacity: 0;
+  animation: popIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-0 { animation-delay: 0.05s; }
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.38s; }
+.delay-3 { animation-delay: 0.54s; }
+.delay-4 { animation-delay: 0.68s; }
+.delay-5 { animation-delay: 0.82s; }
+
+/* ── Gold shimmer text ───────────────────────────────────────── */
+@keyframes goldShimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    #d4ac0d 0%,
+    #f2d41f 18%,
+    #fdf8e1 32%,
+    #f8e77f 45%,
+    #f2d41f 58%,
+    #fdf8e1 70%,
+    #f2d41f 82%,
+    #d4ac0d 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  animation: goldShimmer 3.5s linear infinite;
+}
+
+/* ── CTA button glow pulse ───────────────────────────────────── */
+@keyframes ctaGlow {
+  0%, 100% { box-shadow: 0 4px 18px rgba(242, 212, 31, 0.2), 0 2px 6px rgba(0,0,0,0.18); }
+  50%       { box-shadow: 0 4px 36px rgba(242, 212, 31, 0.55), 0 2px 6px rgba(0,0,0,0.18); }
+}
+
+.cta-glow {
+  animation: ctaGlow 2.8s ease-in-out infinite;
+}

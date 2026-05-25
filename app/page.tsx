@@ -98,35 +98,98 @@ export default function LandingPage() {
 
       {/* ── Hero ────────────────────────────────────────────────── */}
       <Box
-        style={{
-          background: 'linear-gradient(150deg, #123451 0%, #1b4f72 50%, #2e6aa3 100%)',
-          padding: '96px 0 80px',
-        }}
+        className="hero-bg"
+        style={{ position: 'relative', overflow: 'hidden', padding: '108px 0 96px' }}
       >
-        <Container size="md">
-          <Stack align="center" gap="xl">
-            <Badge color="gold" variant="light" size="lg" radius="xl" style={{ letterSpacing: '0.03em' }}>
+        {/* Aurora glow — top right */}
+        <Box
+          style={{
+            position: 'absolute', top: -140, right: -140,
+            width: 720, height: 720, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(58,125,186,0.32) 0%, transparent 65%)',
+            filter: 'blur(90px)', pointerEvents: 'none',
+          }}
+        />
+        {/* Aurora glow — bottom left */}
+        <Box
+          style={{
+            position: 'absolute', bottom: -100, left: -100,
+            width: 540, height: 540, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(242,212,31,0.11) 0%, transparent 65%)',
+            filter: 'blur(90px)', pointerEvents: 'none',
+          }}
+        />
+        {/* Aurora glow — center */}
+        <Box
+          style={{
+            position: 'absolute', top: '15%', left: '25%',
+            width: 640, height: 420, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(36,87,138,0.28) 0%, transparent 70%)',
+            filter: 'blur(110px)', pointerEvents: 'none',
+          }}
+        />
+
+        <Container size="md" style={{ position: 'relative', zIndex: 1 }}>
+          <Stack align="center" gap={28}>
+
+            <Badge
+              color="gold"
+              variant="light"
+              size="lg"
+              radius="xl"
+              className="pop-in delay-0"
+              style={{ letterSpacing: '0.04em' }}
+            >
               Built for real estate agents
             </Badge>
-            <Title
-              order={1}
+
+            <Stack align="center" gap={8} className="fade-up delay-1">
+              <Title
+                order={1}
+                ta="center"
+                c="white"
+                style={{
+                  fontSize: 'clamp(3rem, 7.5vw, 5.2rem)',
+                  fontWeight: 900,
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                Price It Right.
+              </Title>
+              <Title
+                order={1}
+                ta="center"
+                style={{
+                  fontSize: 'clamp(3rem, 7.5vw, 5.2rem)',
+                  fontWeight: 900,
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                <span className="gold-shimmer">Every Time.</span>
+              </Title>
+            </Stack>
+
+            <Text
               ta="center"
               c="white"
-              style={{ fontSize: 'clamp(2.4rem, 6vw, 3.8rem)', fontWeight: 900, lineHeight: 1.1 }}
+              size="xl"
+              maw={520}
+              className="fade-up delay-2"
+              style={{ opacity: 0.82, lineHeight: 1.65 }}
             >
-              Price It Right.{' '}
-              <Text component="span" c="gold.4" inherit>Every Time.</Text>
-            </Title>
-            <Text ta="center" c="white" size="xl" maw={540} style={{ opacity: 0.85, lineHeight: 1.65 }}>
               Pull live comparable sales, adjust for every difference, and deliver a
               client-ready pricing report — in minutes.
             </Text>
-            <Group gap="md" mt="xs">
+
+            <Group gap="md" mt={4} className="fade-up delay-3">
               <Button
                 size="lg"
                 color="gold"
                 component={Link}
                 href="/register"
+                className="cta-glow"
                 rightSection={<IconArrowRight size={18} />}
               >
                 Start for Free
@@ -142,18 +205,25 @@ export default function LandingPage() {
                 See It in Action
               </Button>
             </Group>
-            <Group gap="xl" mt="sm">
+
+            <Group
+              gap="xl"
+              mt={8}
+              className="fade-up delay-4"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.12)', paddingTop: 24 }}
+            >
               {[
                 { icon: IconBolt,  label: '15 live comps per search' },
                 { icon: IconCheck, label: '4-step wizard' },
                 { icon: IconUsers, label: 'Client-ready reports' },
               ].map(({ icon: Icon, label }) => (
-                <Group key={label} gap={6}>
+                <Group key={label} gap={8}>
                   <Icon size={15} color="var(--mantine-color-gold-4)" />
-                  <Text c="white" size="sm" style={{ opacity: 0.85 }}>{label}</Text>
+                  <Text c="white" size="sm" style={{ opacity: 0.8 }}>{label}</Text>
                 </Group>
               ))}
             </Group>
+
           </Stack>
         </Container>
       </Box>
