@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Anchor, Badge, Box, Button, Card, Center, Container,
@@ -50,6 +50,13 @@ const STEPS = [
 
 export default function LandingPage() {
   const [stage, setStage] = useState<'idle' | 'previewing'>('idle');
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const form = useForm({
     initialValues: {
@@ -77,15 +84,15 @@ export default function LandingPage() {
         }}
       >
         <Container size="lg">
-          <Group justify="space-between" h={64}>
-            <Group gap="xs">
+          <Group justify="space-between" wrap="nowrap" h={64}>
+            <Group gap="xs" wrap="nowrap">
               <IconHome size={22} color="var(--mantine-color-navy-8)" />
               <Text fw={900} size="xl" c="navy.8" style={{ letterSpacing: '-0.5px' }}>
                 CMA Pro
               </Text>
             </Group>
-            <Group gap="sm">
-              <Button variant="subtle" color="navy" component={Link} href="/login">
+            <Group gap="sm" wrap="nowrap">
+              <Button variant="subtle" color="navy" component={Link} href="/login" visibleFrom="sm">
                 Sign In
               </Button>
               <Button color="navy" component={Link} href="/register">
@@ -99,33 +106,39 @@ export default function LandingPage() {
       {/* ── Hero ────────────────────────────────────────────────── */}
       <Box
         className="hero-bg"
-        style={{ position: 'relative', overflow: 'hidden', padding: '108px 0 96px' }}
+        style={{ position: 'relative', overflow: 'hidden', padding: '108px 0 136px', zIndex: 1 }}
       >
-        {/* Aurora glow — top right */}
+        {/* Aurora glow — top right (parallax: drifts down at 0.2x scroll) */}
         <Box
           style={{
             position: 'absolute', top: -140, right: -140,
             width: 720, height: 720, borderRadius: '50%',
             background: 'radial-gradient(circle, rgba(58,125,186,0.32) 0%, transparent 65%)',
             filter: 'blur(90px)', pointerEvents: 'none',
+            transform: `translateY(${scrollY * 0.2}px)`,
+            willChange: 'transform',
           }}
         />
-        {/* Aurora glow — bottom left */}
+        {/* Aurora glow — bottom left (parallax: drifts up at 0.1x scroll) */}
         <Box
           style={{
             position: 'absolute', bottom: -100, left: -100,
             width: 540, height: 540, borderRadius: '50%',
             background: 'radial-gradient(circle, rgba(242,212,31,0.11) 0%, transparent 65%)',
             filter: 'blur(90px)', pointerEvents: 'none',
+            transform: `translateY(${scrollY * -0.1}px)`,
+            willChange: 'transform',
           }}
         />
-        {/* Aurora glow — center */}
+        {/* Aurora glow — center (parallax: drifts down at 0.12x scroll) */}
         <Box
           style={{
             position: 'absolute', top: '15%', left: '25%',
             width: 640, height: 420, borderRadius: '50%',
             background: 'radial-gradient(circle, rgba(36,87,138,0.28) 0%, transparent 70%)',
             filter: 'blur(110px)', pointerEvents: 'none',
+            transform: `translateY(${scrollY * 0.12}px)`,
+            willChange: 'transform',
           }}
         />
 
@@ -229,7 +242,17 @@ export default function LandingPage() {
       </Box>
 
       {/* ── Features ────────────────────────────────────────────── */}
-      <Box py={80} bg="white">
+      <Box
+        py={80}
+        bg="white"
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          marginTop: -52,
+          borderRadius: '48px 48px 0 0',
+          boxShadow: '0 -8px 48px rgba(18,52,81,0.1)',
+        }}
+      >
         <Container size="lg">
           <Stack gap={48}>
             <Stack align="center" gap="xs">
@@ -276,7 +299,13 @@ export default function LandingPage() {
       {/* ── How It Works ────────────────────────────────────────── */}
       <Box
         py={88}
-        style={{ background: 'linear-gradient(180deg, #eef4f9 0%, #f8fbfd 60%, white 100%)' }}
+        style={{
+          background: 'linear-gradient(180deg, #eef4f9 0%, #f8fbfd 60%, white 100%)',
+          position: 'relative',
+          zIndex: 3,
+          borderRadius: '48px 48px 0 0',
+          boxShadow: '0 -6px 40px rgba(18,52,81,0.06)',
+        }}
       >
         <Container size="lg">
           <Stack gap={56}>
@@ -418,7 +447,17 @@ export default function LandingPage() {
       </Box>
 
       {/* ── Simulator ───────────────────────────────────────────── */}
-      <Box id="simulator" py={80} bg="white">
+      <Box
+        id="simulator"
+        py={80}
+        bg="white"
+        style={{
+          position: 'relative',
+          zIndex: 4,
+          borderRadius: '48px 48px 0 0',
+          boxShadow: '0 -6px 40px rgba(18,52,81,0.06)',
+        }}
+      >
         <Container size="sm">
           <Stack gap={40}>
             <Stack align="center" gap="xs">
@@ -629,7 +668,13 @@ export default function LandingPage() {
       {/* ── CTA Banner ──────────────────────────────────────────── */}
       <Box
         py={80}
-        style={{ background: 'linear-gradient(135deg, #123451 0%, #2e6aa3 100%)' }}
+        style={{
+          background: 'linear-gradient(135deg, #123451 0%, #2e6aa3 100%)',
+          position: 'relative',
+          zIndex: 5,
+          borderRadius: '48px 48px 0 0',
+          boxShadow: '0 -6px 40px rgba(18,52,81,0.1)',
+        }}
       >
         <Container size="sm">
           <Stack align="center" gap="xl">
@@ -656,7 +701,7 @@ export default function LandingPage() {
       </Box>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
-      <Box py={40} bg="navy.9">
+      <Box py={40} bg="navy.9" style={{ position: 'relative', zIndex: 6 }}>
         <Container size="lg">
           <Group justify="space-between" wrap="wrap" gap="md">
             <Group gap="xs">
