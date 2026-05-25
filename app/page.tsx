@@ -204,42 +204,145 @@ export default function LandingPage() {
       </Box>
 
       {/* ── How It Works ────────────────────────────────────────── */}
-      <Box py={80} bg="gray.0">
+      <Box
+        py={88}
+        style={{ background: 'linear-gradient(180deg, #eef4f9 0%, #f8fbfd 60%, white 100%)' }}
+      >
         <Container size="lg">
-          <Stack gap={48}>
-            <Stack align="center" gap="xs">
+          <Stack gap={56}>
+            <Stack align="center" gap="sm">
               <Title order={2} ta="center" c="navy.8" fw={900}>
                 From address to report in 4 steps
               </Title>
+              <Text c="dimmed" ta="center" size="lg" maw={380}>
+                No training needed. Fill, fetch, and deliver.
+              </Text>
             </Stack>
-            <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="xl">
-              {STEPS.map(({ num, icon: Icon, title, desc }) => (
-                <Stack key={num} gap="md" align="flex-start">
-                  <Text
-                    fw={900}
-                    c="navy.2"
-                    style={{ fontSize: 28, fontVariantNumeric: 'tabular-nums' }}
-                  >
-                    {num}
-                  </Text>
-                  <Box
-                    style={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: 14,
-                      background: 'var(--mantine-color-navy-8)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Icon size={26} color="white" />
+
+            {/* ── Desktop: horizontal timeline ── */}
+            <Box visibleFrom="md" style={{ position: 'relative' }}>
+              {/* Gradient connector line */}
+              <Box
+                style={{
+                  position: 'absolute',
+                  top: 40,
+                  left: 'calc(12.5% + 4px)',
+                  right: 'calc(12.5% + 4px)',
+                  height: 2,
+                  background: 'linear-gradient(90deg, #123451 0%, #3a7dba 100%)',
+                  zIndex: 0,
+                }}
+              />
+
+              <Box style={{ display: 'flex' }}>
+                {STEPS.map(({ num, icon: Icon, title, desc }, i) => {
+                  const circleBg = ['#123451', '#1b4f72', '#24578a', '#2e6aa3'][i];
+                  return (
+                    <Stack key={num} align="center" gap="xl" style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+                      {/* Icon circle — sits on the line */}
+                      <Box
+                        style={{
+                          width: 80,
+                          height: 80,
+                          borderRadius: '50%',
+                          background: circleBg,
+                          border: '5px solid white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 6px 20px rgba(18,52,81,0.22)',
+                        }}
+                      >
+                        <Icon size={32} color="white" />
+                      </Box>
+
+                      {/* Content card */}
+                      <Card
+                        padding="lg"
+                        radius="xl"
+                        style={{
+                          width: '88%',
+                          background: 'white',
+                          boxShadow: '0 2px 20px rgba(18,52,81,0.07)',
+                          border: '1px solid rgba(18,52,81,0.06)',
+                        }}
+                      >
+                        <Stack align="center" gap="xs" ta="center">
+                          <Text
+                            fw={800}
+                            size="xs"
+                            c="navy.5"
+                            style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
+                          >
+                            Step {num}
+                          </Text>
+                          <Title order={5} c="navy.8">{title}</Title>
+                          <Text c="dimmed" size="sm" lh={1.65}>{desc}</Text>
+                        </Stack>
+                      </Card>
+                    </Stack>
+                  );
+                })}
+              </Box>
+            </Box>
+
+            {/* ── Mobile: vertical timeline ── */}
+            <Stack hiddenFrom="md" gap={0}>
+              {STEPS.map(({ num, icon: Icon, title, desc }, i) => {
+                const circleBg = ['#123451', '#1b4f72', '#24578a', '#2e6aa3'][i];
+                return (
+                  <Box key={num} style={{ display: 'flex', gap: 20 }}>
+                    {/* Left: circle + connector */}
+                    <Stack align="center" gap={0} style={{ flexShrink: 0 }}>
+                      <Box
+                        style={{
+                          width: 56,
+                          height: 56,
+                          borderRadius: '50%',
+                          background: circleBg,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 4px 12px rgba(18,52,81,0.2)',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Icon size={24} color="white" />
+                      </Box>
+                      {i < STEPS.length - 1 && (
+                        <Box
+                          style={{
+                            width: 2,
+                            flex: 1,
+                            minHeight: 40,
+                            margin: '6px 0',
+                            background: 'linear-gradient(180deg, #1b4f72, #5690c4)',
+                          }}
+                        />
+                      )}
+                    </Stack>
+
+                    {/* Right: content */}
+                    <Stack
+                      gap={4}
+                      style={{ paddingTop: 14, paddingBottom: i < STEPS.length - 1 ? 36 : 0 }}
+                    >
+                      <Text
+                        fw={800}
+                        size="xs"
+                        c="navy.5"
+                        style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
+                      >
+                        Step {num}
+                      </Text>
+                      <Title order={5} c="navy.8">{title}</Title>
+                      <Text c="dimmed" size="sm" lh={1.65}>{desc}</Text>
+                    </Stack>
                   </Box>
-                  <Title order={5} c="navy.8">{title}</Title>
-                  <Text c="dimmed" size="sm" lh={1.65}>{desc}</Text>
-                </Stack>
-              ))}
-            </SimpleGrid>
+                );
+              })}
+            </Stack>
+
           </Stack>
         </Container>
       </Box>
