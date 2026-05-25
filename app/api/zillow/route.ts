@@ -1,63 +1,59 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-const RAPIDAPI_HOST = 'zillow-com1.p.rapidapi.com';
-
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const apiKey = user.user_metadata?.rapidapi_key;
+  const apiKey = user.user_metadata?.rentcast_key;
   if (!apiKey) {
-    return NextResponse.json({ error: 'No RapidAPI key configured. Add it in Settings.' }, { status: 422 });
+    return NextResponse.json({ error: 'No Rentcast API key configured. Add it in Settings.' }, { status: 422 });
   }
 
   const body = await request.json();
-  const { zip, beds, baths, sqft, maxResults = 10 } = body;
+  const { zip, beds, baths, sqft, maxResults = 15 } = body;
 
-  const url = new URL(`https://${RAPIDAPI_HOST}/propertyExtendedSearch`);
-  url.searchParams.set('location', zip);
-  url.searchParams.set('status_type', 'RecentlySold');
-  url.searchParams.set('home_type', 'Houses');
-  url.searchParams.set('bedsMin', String(Math.max(1, beds - 1)));
-  url.searchParams.set('bedsMax', String(beds + 1));
-  url.searchParams.set('bathsMin', String(Math.max(1, baths - 1)));
-  url.searchParams.set('sqftMin', String(Math.round(sqft * 0.8)));
-  url.searchParams.set('sqftMax', String(Math.round(sqft * 1.2)));
+  const url = new URL('https://api.rentcast.io/v1/listings/sale');
+  url.searchParams.set('zipCode', zip);
+  url.searchParams.set('bedrooms', String(beds));
+  url.searchParams.set('squareFootage', `${Math.round(sqft * 0.75)}-${Math.round(sqft * 1.25)}`);
+  url.searchParams.set('status', 'Inactive');
+  url.searchParams.set('limit', String(maxResults));
 
   try {
     const res = await fetch(url.toString(), {
-      headers: { 'x-rapidapi-host': RAPIDAPI_HOST, 'x-rapidapi-key': apiKey },
+      headers: { 'X-Api-Key': apiKey, 'accept': 'application/json' },
     });
-    if (!res.ok) throw new Error(`Zillow API error: ${res.status}`);
-    const data = await res.json();
-    const props = (data.props ?? []).slice(0, maxResults);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message ?? `Rentcast API error: ${res.status}`);
+    }
+    const props: any[] = await res.json();
 
     const comps = props.map((p: any) => {
-      const salePrice = p.price ?? p.soldPrice ?? 0;
-      const sqftVal = p.livingArea ?? 1;
+      const salePrice = p.price ?? 0;
+      const sqftVal = p.squareFootage ?? 1;
       return {
-        id: p.zpid ?? `${(p.address ?? '').replace(/\s+/g, '-').toLowerCase()}-${p.zipcode ?? zip}`,
-        address: p.address ?? '',
+        id: p.id ?? `${(p.addressLine1 ?? '').replace(/\s+/g, '-').toLowerCase()}-${p.zipCode ?? zip}`,
+        address: p.addressLine1 ?? p.formattedAddress ?? '',
         city: p.city ?? '',
         state: p.state ?? '',
-        zip: p.zipcode ?? zip,
+        zip: p.zipCode ?? zip,
         beds: p.bedrooms ?? beds,
         baths: p.bathrooms ?? baths,
         sqft: sqftVal,
-        lot_sqft: p.lotAreaValue ? Math.round(p.lotAreaValue * 43560) : undefined,
+        lot_sqft: p.lotSize,
         year_built: p.yearBuilt,
         sale_price: salePrice,
-        list_price: p.listingPrice,
-        sale_date: p.soldDate ?? new Date().toISOString().split('T')[0],
+        list_price: salePrice,
+        sale_date: p.removedDate ?? p.lastSeenDate ?? new Date().toISOString().split('T')[0],
         days_on_market: p.daysOnMarket ?? 0,
         status: 'sold',
         price_per_sqft: sqftVal > 0 ? Math.round(salePrice / sqftVal) : 0,
-        distance_miles: p.distance,
+        distance_miles: undefined,
         included: true,
-        source: 'zillow',
-        zpid: p.zpid,
+        source: 'rentcast',
       };
     });
 

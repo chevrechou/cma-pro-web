@@ -19,7 +19,7 @@ export default function SettingsPage() {
 
   const form = useForm({
     initialValues: {
-      fullName: '', brokerage: '', licenseNumber: '', phone: '', rapidApiKey: '',
+      fullName: '', brokerage: '', licenseNumber: '', phone: '', rentcastKey: '',
     },
   });
 
@@ -32,7 +32,7 @@ export default function SettingsPage() {
         brokerage: m.brokerage ?? '',
         licenseNumber: m.license_number ?? '',
         phone: m.phone ?? '',
-        rapidApiKey: m.rapidapi_key ?? '',
+        rentcastKey: m.rentcast_key ?? '',
       });
       setLoading(false);
     });
@@ -46,7 +46,7 @@ export default function SettingsPage() {
         brokerage: values.brokerage,
         license_number: values.licenseNumber,
         phone: values.phone,
-        rapidapi_key: values.rapidApiKey,
+        rentcast_key: values.rentcastKey,
       },
     });
     setSaving(false);
@@ -90,10 +90,10 @@ export default function SettingsPage() {
               </Group>
               <Divider />
               <PasswordInput
-                label="RapidAPI Key (Zillow)"
-                placeholder="Your RapidAPI key"
-                description="Subscribe to Zillow Com1 on RapidAPI to fetch comparable sales."
-                {...form.getInputProps('rapidApiKey')}
+                label="Rentcast API Key"
+                placeholder="Your Rentcast API key"
+                description="Get a free key at rentcast.io — used to fetch recently sold comparable properties."
+                {...form.getInputProps('rentcastKey')}
               />
             </Stack>
           </Card>
