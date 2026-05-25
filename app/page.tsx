@@ -15,9 +15,9 @@ import {
 } from '@tabler/icons-react';
 
 const MOCK_COMPS = [
-  { address: '1234 Oak Street',  city: 'Sample City, CA', price: 485000, sqft: 1820, dom: 14 },
-  { address: '5678 Maple Ave',   city: 'Sample City, CA', price: 472000, sqft: 1750, dom: 21 },
-  { address: '9012 Pine Blvd',   city: 'Sample City, CA', price: 498500, sqft: 1890, dom: 9  },
+  { address: '1234 Oak Street', city: 'Sample City, CA', beds: 3, baths: 2, price: 485000, list_price: 490000, sqft: 1820, dom: 14, ppsf: 266, sold_date: 'Apr 15, 2025' },
+  { address: '5678 Maple Ave',  city: 'Sample City, CA', beds: 3, baths: 2, price: 472000, list_price: 475000, sqft: 1750, dom: 21, ppsf: 270, sold_date: 'Mar 28, 2025' },
+  { address: '9012 Pine Blvd',  city: 'Sample City, CA', beds: 3, baths: 2, price: 498500, list_price: 500000, sqft: 1890, dom: 9,  ppsf: 264, sold_date: 'May 2, 2025'  },
 ];
 
 const FEATURES = [
@@ -42,10 +42,30 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { num: '01', icon: IconClipboardList, title: 'Enter Subject Property',   desc: 'Address, beds, baths, sqft, year built, and condition.' },
-  { num: '02', icon: IconSearch,        title: 'Pull Live Comps',          desc: 'Fetch recently sold comparables within ±25% sqft of your subject.' },
-  { num: '03', icon: IconCalculator,    title: 'Apply Adjustments',        desc: 'Add dollar adjustments per comp and see the average price update live.' },
-  { num: '04', icon: IconShare,         title: 'Save & Share',             desc: 'Save the report, share it with your client, and come back any time.' },
+  {
+    num: '01',
+    icon: IconClipboardList,
+    title: 'Enter Subject Property',
+    desc: 'Address, beds, baths, sqft, year built, and condition. This anchors the search — everything else is measured relative to this property.',
+  },
+  {
+    num: '02',
+    icon: IconSearch,
+    title: 'Pull Live Comps',
+    desc: 'CMA Pro fetches up to 15 recently sold homes filtered by ZIP, bedroom count, and ±25% square footage. Real sale prices, DOM, and $/sqft — no estimates.',
+  },
+  {
+    num: '03',
+    icon: IconCalculator,
+    title: 'Apply Adjustments',
+    desc: 'No two homes are identical. Add dollar adjustments per comp to account for differences — a pool, an extra bath, superior condition, or a larger lot. As you type, the suggested price range recalculates live so you can see the impact of every change.',
+  },
+  {
+    num: '04',
+    icon: IconShare,
+    title: 'Save & Share',
+    desc: 'Save the completed report tied to your client\'s name and email. Come back any time to review or update it as the market shifts.',
+  },
 ];
 
 export default function LandingPage() {
@@ -570,33 +590,78 @@ export default function LandingPage() {
                       style={{ filter: 'blur(4px)', userSelect: 'none', pointerEvents: 'none' }}
                     >
                       <Stack gap="sm" p="md">
-                        <Text fw={700} c="navy.8" size="sm">Comparable Sales</Text>
+
+                        {/* Comp list header */}
+                        <Group justify="space-between" align="center">
+                          <Text fw={700} c="navy.8" size="sm">Comparable Sales</Text>
+                          <Badge color="navy" variant="light" size="sm">3 of 3 included</Badge>
+                        </Group>
+
+                        {/* Comp cards */}
                         {MOCK_COMPS.map((comp) => (
                           <Card key={comp.address} withBorder padding="sm" radius="md">
-                            <Group justify="space-between">
-                              <Stack gap={2}>
-                                <Text fw={600} size="sm">{comp.address}</Text>
-                                <Text size="xs" c="dimmed">
-                                  {comp.city} &bull; {comp.sqft.toLocaleString()} sqft &bull; {comp.dom} days
-                                </Text>
-                              </Stack>
-                              <Text fw={700} c="navy.7">${comp.price.toLocaleString()}</Text>
-                            </Group>
+                            <Stack gap={6}>
+                              <Group justify="space-between" align="flex-start">
+                                <Stack gap={1}>
+                                  <Text fw={700} size="sm">{comp.address}</Text>
+                                  <Text size="xs" c="dimmed">{comp.city}</Text>
+                                </Stack>
+                                <Stack gap={1} align="flex-end">
+                                  <Text fw={800} size="md" c="navy.7">${comp.price.toLocaleString()}</Text>
+                                  <Text size="xs" c="dimmed">Sold {comp.sold_date}</Text>
+                                </Stack>
+                              </Group>
+                              <Group gap="lg">
+                                <Text size="xs" c="dimmed">{comp.beds}bd / {comp.baths}ba</Text>
+                                <Text size="xs" c="dimmed">{comp.sqft.toLocaleString()} sqft</Text>
+                                <Text size="xs" c="dimmed">${comp.ppsf}/sqft</Text>
+                                <Text size="xs" c="dimmed">{comp.dom} DOM</Text>
+                              </Group>
+                            </Stack>
                           </Card>
                         ))}
-                        <Divider my="xs" />
-                        <Group justify="space-between">
-                          <Text fw={700} size="sm">Average Sale Price</Text>
-                          <Text fw={900} size="lg" c="navy.8">$485,167</Text>
-                        </Group>
-                        <Group justify="space-between">
-                          <Text fw={700} size="sm">Suggested Range</Text>
-                          <Text fw={700} size="sm" c="navy.6">$470,612 – $499,722</Text>
-                        </Group>
-                        <Group justify="space-between">
-                          <Text fw={700} size="sm">Avg. Days on Market</Text>
-                          <Text c="dimmed" size="sm">14.7 days</Text>
-                        </Group>
+
+                        <Divider my="xs" label="Market Summary" labelPosition="center" />
+
+                        {/* Stats grid */}
+                        <SimpleGrid cols={2} spacing="xs">
+                          <Card withBorder padding="xs" radius="md" bg="navy.0">
+                            <Stack gap={2}>
+                              <Text size="xs" c="dimmed">Avg. Sale Price</Text>
+                              <Text fw={900} size="md" c="navy.8">$485,167</Text>
+                            </Stack>
+                          </Card>
+                          <Card withBorder padding="xs" radius="md" bg="navy.0">
+                            <Stack gap={2}>
+                              <Text size="xs" c="dimmed">Avg. $/sqft</Text>
+                              <Text fw={900} size="md" c="navy.8">$267</Text>
+                            </Stack>
+                          </Card>
+                          <Card withBorder padding="xs" radius="md" bg="navy.0">
+                            <Stack gap={2}>
+                              <Text size="xs" c="dimmed">Avg. Days on Market</Text>
+                              <Text fw={900} size="md" c="navy.8">14.7 days</Text>
+                            </Stack>
+                          </Card>
+                          <Card withBorder padding="xs" radius="md" bg="navy.0">
+                            <Stack gap={2}>
+                              <Text size="xs" c="dimmed">List-to-Sale Ratio</Text>
+                              <Text fw={900} size="md" c="navy.8">99.3%</Text>
+                            </Stack>
+                          </Card>
+                        </SimpleGrid>
+
+                        {/* Suggested range */}
+                        <Card withBorder padding="sm" radius="md" bg="gold.0" style={{ borderColor: 'var(--mantine-color-gold-3)' }}>
+                          <Group justify="space-between">
+                            <Stack gap={1}>
+                              <Text size="xs" fw={700} c="navy.7">Suggested List Price Range</Text>
+                              <Text size="xs" c="dimmed">Based on 3 adjusted comps</Text>
+                            </Stack>
+                            <Text fw={900} size="lg" c="navy.8">$470,612 – $499,722</Text>
+                          </Group>
+                        </Card>
+
                       </Stack>
                     </Box>
 
