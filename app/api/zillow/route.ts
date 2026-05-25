@@ -1,61 +1,72 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+const HOST = 'us-real-estate.p.rapidapi.com';
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const apiKey = user.user_metadata?.rentcast_key;
+  const apiKey = user.user_metadata?.rapidapi_key;
   if (!apiKey) {
-    return NextResponse.json({ error: 'No Rentcast API key configured. Add it in Settings.' }, { status: 422 });
+    return NextResponse.json({ error: 'No RapidAPI key configured. Add it in Settings.' }, { status: 422 });
   }
 
   const body = await request.json();
   const { zip, beds, baths, sqft, maxResults = 15 } = body;
 
-  const url = new URL('https://api.rentcast.io/v1/listings/sale');
-  url.searchParams.set('zipCode', zip);
-  url.searchParams.set('bedrooms', String(beds));
-  url.searchParams.set('squareFootage', `${Math.round(sqft * 0.75)}-${Math.round(sqft * 1.25)}`);
-  url.searchParams.set('status', 'Inactive');
-  url.searchParams.set('limit', String(maxResults));
+  const url = new URL(`https://${HOST}/v2/sold-homes-by-zipcode`);
+  url.searchParams.set('zipcode', zip);
+  url.searchParams.set('offset', '0');
+  url.searchParams.set('sort', 'sold_date');
 
   try {
     const res = await fetch(url.toString(), {
-      headers: { 'X-Api-Key': apiKey, 'accept': 'application/json' },
+      headers: { 'x-rapidapi-host': HOST, 'x-rapidapi-key': apiKey },
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message ?? `Rentcast API error: ${res.status}`);
-    }
-    const props: any[] = await res.json();
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    const data = await res.json();
+    const results: any[] = (data?.data?.results ?? []).slice(0, maxResults * 3);
 
-    const comps = props.map((p: any) => {
-      const salePrice = p.price ?? 0;
-      const sqftVal = p.squareFootage ?? 1;
-      return {
-        id: p.id ?? `${(p.addressLine1 ?? '').replace(/\s+/g, '-').toLowerCase()}-${p.zipCode ?? zip}`,
-        address: p.addressLine1 ?? p.formattedAddress ?? '',
-        city: p.city ?? '',
-        state: p.state ?? '',
-        zip: p.zipCode ?? zip,
-        beds: p.bedrooms ?? beds,
-        baths: p.bathrooms ?? baths,
-        sqft: sqftVal,
-        lot_sqft: p.lotSize,
-        year_built: p.yearBuilt,
-        sale_price: salePrice,
-        list_price: salePrice,
-        sale_date: p.removedDate ?? p.lastSeenDate ?? new Date().toISOString().split('T')[0],
-        days_on_market: p.daysOnMarket ?? 0,
-        status: 'sold',
-        price_per_sqft: sqftVal > 0 ? Math.round(salePrice / sqftVal) : 0,
-        distance_miles: undefined,
-        included: true,
-        source: 'rentcast',
-      };
-    });
+    const comps = results
+      .filter((p: any) => {
+        const d = p.description ?? {};
+        if (!d.sold_price || d.sold_price < 10000) return false;
+        const b = d.beds ?? 0;
+        const s = d.sqft ?? 0;
+        if (b && Math.abs(b - beds) > 2) return false;
+        if (s && (s < sqft * 0.6 || s > sqft * 1.6)) return false;
+        return true;
+      })
+      .slice(0, maxResults)
+      .map((p: any) => {
+        const d = p.description ?? {};
+        const loc = p.location?.address ?? {};
+        const salePrice = d.sold_price ?? 0;
+        const sqftVal = d.sqft ?? 1;
+        return {
+          id: p.permalink ?? `${(loc.line ?? '').replace(/\s+/g, '-').toLowerCase()}-${zip}`,
+          address: loc.line ?? '',
+          city: loc.city ?? '',
+          state: loc.state_code ?? '',
+          zip: zip,
+          beds: d.beds ?? beds,
+          baths: d.baths ?? baths,
+          sqft: sqftVal,
+          lot_sqft: d.lot_sqft,
+          year_built: d.year_built,
+          sale_price: salePrice,
+          list_price: d.list_price ?? salePrice,
+          sale_date: d.sold_date ?? new Date().toISOString().split('T')[0],
+          days_on_market: d.days_on_market ?? 0,
+          status: 'sold',
+          price_per_sqft: sqftVal > 0 ? Math.round(salePrice / sqftVal) : 0,
+          distance_miles: undefined,
+          included: true,
+          source: 'us-real-estate',
+        };
+      });
 
     return NextResponse.json({ comps });
   } catch (e: any) {

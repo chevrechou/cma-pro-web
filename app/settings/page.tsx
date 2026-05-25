@@ -19,7 +19,7 @@ export default function SettingsPage() {
 
   const form = useForm({
     initialValues: {
-      fullName: '', brokerage: '', licenseNumber: '', phone: '', rentcastKey: '',
+      fullName: '', brokerage: '', licenseNumber: '', phone: '', rapidApiKey: '',
     },
   });
 
@@ -32,7 +32,7 @@ export default function SettingsPage() {
         brokerage: m.brokerage ?? '',
         licenseNumber: m.license_number ?? '',
         phone: m.phone ?? '',
-        rentcastKey: m.rentcast_key ?? '',
+        rapidApiKey: m.rapidapi_key ?? '',
       });
       setLoading(false);
     });
@@ -46,7 +46,7 @@ export default function SettingsPage() {
         brokerage: values.brokerage,
         license_number: values.licenseNumber,
         phone: values.phone,
-        rentcast_key: values.rentcastKey,
+        rapidapi_key: values.rapidApiKey,
       },
     });
     setSaving(false);
@@ -90,10 +90,10 @@ export default function SettingsPage() {
               </Group>
               <Divider />
               <PasswordInput
-                label="Rentcast API Key"
-                placeholder="Your Rentcast API key"
-                description="Get a free key at rentcast.io — used to fetch recently sold comparable properties."
-                {...form.getInputProps('rentcastKey')}
+                label="RapidAPI Key"
+                placeholder="Your RapidAPI key"
+                description="Subscribe to US Real Estate on RapidAPI to fetch recently sold comparable properties."
+                {...form.getInputProps('rapidApiKey')}
               />
             </Stack>
           </Card>
