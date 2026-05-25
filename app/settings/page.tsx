@@ -25,8 +25,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) return;
-      const m = data.user.user_metadata ?? {};
+      const m = data.user?.user_metadata ?? {};
       form.setValues({
         fullName: m.full_name ?? '',
         brokerage: m.brokerage ?? '',
